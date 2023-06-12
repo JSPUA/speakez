@@ -88,22 +88,20 @@
             color="#C0CAF1"
             :ticks="ticks"
             :tick-labels="speedLabel"
-            max="2"
-            step="0.5"
+            max="4"
+            step="1"
             show-ticks="always"
             tick-size="4"
             v-model="sliderValue"
           ></v-slider>
-          <p>{{ sliderValue }}</p>
         </v-col>
         <v-col cols="12" lg="6">
           <v-switch
             v-model="ex11"
-            value="Neural Speech"
             label="Neural Speech"
             color="info"
+            value="Neural Speech"
             hide-details
-            @click="getNeural"
           ></v-switch>
         </v-col>
         <v-col cols="12" lg="6">
@@ -122,56 +120,45 @@
         <v-col cols="1">
           <v-hover>
             <template v-slot="{ hover }">
-              <v-btn icon
-                ><v-avatar :size="38" :color="hover ? 'primary' : 'info'"
-                  ><v-icon color="#FFFFFF">mdi-rewind</v-icon></v-avatar
-                ></v-btn
-              >
+              <v-btn icon @click="rewind">
+                <v-avatar :size="38" :color="hover ? 'primary' : 'info'">
+                  <v-icon color="#FFFFFF">mdi-rewind</v-icon>
+                </v-avatar>
+              </v-btn>
             </template>
           </v-hover>
         </v-col>
         <v-col cols="1">
           <v-hover>
             <template v-slot="{ hover }">
-              <v-btn icon>
-                <v-avatar :size="38" :color="hover ? 'primary' : 'info'"
-                  ><v-icon color="#FFFFFF">mdi-play</v-icon></v-avatar
-                ></v-btn
-              ></template
-            >
+              <v-btn icon @click="resume">
+                <v-avatar :size="38" :color="hover ? 'primary' : 'info'">
+                  <v-icon color="#FFFFFF">mdi-play</v-icon>
+                </v-avatar>
+              </v-btn>
+            </template>
           </v-hover>
         </v-col>
         <v-col cols="1">
           <v-hover>
             <template v-slot="{ hover }">
-              <v-btn icon>
-                <v-avatar :size="38" :color="hover ? 'primary' : 'info'"
-                  ><v-icon color="#FFFFFF">mdi-stop</v-icon></v-avatar
-                ></v-btn
-              ></template
-            >
+              <v-btn icon @click="stop">
+                <v-avatar :size="38" :color="hover ? 'primary' : 'info'">
+                  <v-icon color="#FFFFFF">mdi-stop</v-icon>
+                </v-avatar>
+              </v-btn>
+            </template>
           </v-hover>
         </v-col>
         <v-col cols="1">
           <v-hover>
             <template v-slot="{ hover }">
-              <v-btn icon
-                ><v-avatar :size="38" :color="hover ? 'primary' : 'info'"
-                  ><v-icon color="#FFFFFF">mdi-fast-forward</v-icon></v-avatar
-                ></v-btn
-              ></template
-            >
-          </v-hover>
-        </v-col>
-        <v-col cols="1">
-          <v-hover>
-            <template v-slot="{ hover }">
-              <v-btn icon>
-                <v-avatar :size="38" :color="hover ? 'primary' : 'info'"
-                  ><v-icon color="#FFFFFF"> mdi-replay</v-icon></v-avatar
-                ></v-btn
-              ></template
-            >
+              <v-btn icon @click="fastForward">
+                <v-avatar :size="38" :color="hover ? 'primary' : 'info'">
+                  <v-icon color="#FFFFFF">mdi-fast-forward</v-icon>
+                </v-avatar>
+              </v-btn>
+            </template>
           </v-hover>
         </v-col>
         <v-col cols="1">
@@ -188,7 +175,7 @@
         <v-col cols="1">
           <v-hover>
             <template v-slot="{ hover }">
-              <v-btn icon v-if="audioSrc" @click="download">
+              <v-btn icon>
                 <v-avatar :size="38" :color="hover ? 'primary' : 'info'"
                   ><v-icon color="#FFFFFF">mdi-download</v-icon></v-avatar
                 ></v-btn
@@ -213,12 +200,36 @@ export default {
       wordCount: 0,
       wordCountColor: "black",
       sliderValue: 1,
-      speedLabel: ["0", "0.5", "1", "1.5", "2.0"],
-      ex11: false,
-      audioSrc: null,
+      speedLabel: [0.5, 1, 1.5, 2.0, 2.5],
+      playbackPosition: 0,
     };
   },
+
   methods: {
+    rewind() {
+      const audio = this.$refs.audio;
+      audio.currentTime -= 5; // Adjust the rewind time (in seconds) as needed
+    },
+
+    stop() {
+      const audio = this.$refs.audio;
+      audio.pause();
+      this.playbackPosition = audio.currentTime; // Store the current playback position
+      audio.currentTime = 0; // Reset the playback position to the beginning
+    },
+
+    resume() {
+      const audio = this.$refs.audio;
+      audio.currentTime = this.playbackPosition; // Set the playback position to the stored value
+      audio.play();
+      this.updatePlaybackSpeed();
+    },
+
+    fastForward() {
+      const audio = this.$refs.audio;
+      audio.currentTime += 5; // Adjust the fast forward time (in seconds) as needed
+    },
+
     speak() {
       const polly = new AWS.Polly({
         accessKeyId: "",
@@ -229,7 +240,6 @@ export default {
         OutputFormat: "mp3",
         Text: this.text,
         VoiceId: "Joanna",
-        Engine: this.ex11 ? "neural" : "standard",
       };
       polly.synthesizeSpeech(params, (err, data) => {
         if (err) console.log(err, err.stack);
@@ -239,22 +249,16 @@ export default {
             new Blob([data.AudioStream.buffer])
           );
           audio.src = url;
-          audio.play();
-          this.audioSrc = url; // Store the audio URL for download
+          audio.addEventListener("loadeddata", () => {
+            audio.play();
+            this.updatePlaybackSpeed(); // Update playback speed after audio is played
+          });
         }
       });
     },
-
-    download() {
-      if (this.audioSrc) {
-        const link = document.createElement("a");
-        link.href = this.audioSrc;
-        link.download = "speech.mp3";
-        link.click();
-      }
-    },
     calculateWordCount() {
       const words = this.text.trim().split(" ");
+
       if (words.length === 1 && words[0] === "") {
         this.wordCount = 0;
       } else {
@@ -267,6 +271,16 @@ export default {
         this.wordCountColor = "black";
       }
     },
+    updatePlaybackSpeed() {
+      const audio = this.$refs.audio;
+      audio.playbackRate = this.speedLabel[this.sliderValue];
+    },
+  },
+
+  watch: {
+    sliderValue() {
+      this.updatePlaybackSpeed();
+    },
   },
 };
-</script>
+</script></script>
