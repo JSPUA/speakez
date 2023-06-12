@@ -98,10 +98,11 @@
         <v-col cols="12" lg="6">
           <v-switch
             v-model="ex11"
+            value="Neural Speech"
             label="Neural Speech"
             color="info"
-            value="Neural Speech"
             hide-details
+            @click="getNeural"
           ></v-switch>
         </v-col>
         <v-col cols="12" lg="6">
@@ -175,7 +176,7 @@
         <v-col cols="1">
           <v-hover>
             <template v-slot="{ hover }">
-              <v-btn icon>
+              <v-btn icon v-if="audioSrc" @click="download">
                 <v-avatar :size="38" :color="hover ? 'primary' : 'info'"
                   ><v-icon color="#FFFFFF">mdi-download</v-icon></v-avatar
                 ></v-btn
@@ -202,6 +203,8 @@ export default {
       sliderValue: 1,
       speedLabel: [0.5, 1, 1.5, 2.0, 2.5],
       playbackPosition: 0,
+      ex11: false,
+      audioSrc: null,
     };
   },
 
@@ -240,6 +243,7 @@ export default {
         OutputFormat: "mp3",
         Text: this.text,
         VoiceId: "Joanna",
+        Engine: this.ex11 ? "neural" : "standard",
       };
       polly.synthesizeSpeech(params, (err, data) => {
         if (err) console.log(err, err.stack);
@@ -249,12 +253,18 @@ export default {
             new Blob([data.AudioStream.buffer])
           );
           audio.src = url;
-          audio.addEventListener("loadeddata", () => {
-            audio.play();
-            this.updatePlaybackSpeed(); // Update playback speed after audio is played
-          });
+          audio.play();
+          this.audioSrc = url; // Store the audio URL for download
         }
       });
+    },
+    download() {
+      if (this.audioSrc) {
+        const link = document.createElement("a");
+        link.href = this.audioSrc;
+        link.download = "speech.mp3";
+        link.click();
+      }
     },
     calculateWordCount() {
       const words = this.text.trim().split(" ");
@@ -283,4 +293,4 @@ export default {
     },
   },
 };
-</script></script>
+</script>
