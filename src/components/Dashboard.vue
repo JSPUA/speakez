@@ -165,12 +165,29 @@
         <v-col cols="1">
           <v-hover>
             <template v-slot="{ hover }">
-              <v-btn icon>
-                <v-avatar :size="38" :color="hover ? 'primary' : 'info'"
-                  ><v-icon color="#FFFFFF">mdi-volume-high</v-icon></v-avatar
-                >
-              </v-btn></template
-            >
+              <v-menu offset-y>
+                <template v-slot:activator="{ on, attrs }">
+                  <v-btn icon v-bind="attrs" v-on="on">
+                    <v-avatar :size="38" :color="hover ? 'primary' : 'info'">
+                      <v-icon color="#FFFFFF">mdi-volume-high</v-icon>
+                    </v-avatar>
+                  </v-btn>
+                </template>
+                <v-card>
+                  <v-list>
+                    <v-subheader>Volume</v-subheader>
+                    <v-slider
+                      v-model="volumeValue"
+                      min="0"
+                      max="1"
+                      step="0.01"
+                      thumb-label
+                      @input="updateVolume(volumeValue)"
+                    ></v-slider>
+                  </v-list>
+                </v-card>
+              </v-menu>
+            </template>
           </v-hover>
         </v-col>
         <v-col cols="1">
@@ -205,10 +222,16 @@ export default {
       playbackPosition: 0,
       ex11: false,
       audioSrc: null,
+      showVolumeSlider: false,
+      audio: new Audio(),
+      volumeValue: 1,
     };
   },
 
   methods: {
+    updateVolume(value) {
+      this.$refs.audio.volume = value;
+    },
     rewind() {
       const audio = this.$refs.audio;
       audio.currentTime -= 5; // Adjust the rewind time (in seconds) as needed
@@ -248,13 +271,15 @@ export default {
       polly.synthesizeSpeech(params, (err, data) => {
         if (err) console.log(err, err.stack);
         else {
-          const audio = this.$refs.audio;
+          const audio = new Audio(); // Create a new audio element
           const url = window.URL.createObjectURL(
             new Blob([data.AudioStream.buffer])
           );
           audio.src = url;
+          audio.volume = this.volumeValue; // Set the initial volume
           audio.play();
-          this.audioSrc = url; // Store the audio URL for download
+          this.audioSrc = url;
+          this.$refs.audio = audio; // Assign the audio element to $refs
         }
       });
     },
