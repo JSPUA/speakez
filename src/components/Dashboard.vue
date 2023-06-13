@@ -3,21 +3,13 @@
     <v-col cols="12" class="purple lighten-2 d-flex pa-3 mb-10 shadow1">
       <v-row>
         <v-col cols="2" class="align-self-center">
-          <v-img
-            max-height="70"
-            max-width="120"
-            :src="require('@/assets/logo2.png')"
-            class="ml-10"
-          ></v-img>
+          <v-img max-height="70" max-width="120" :src="require('@/assets/logo2.png')" class="ml-10"></v-img>
         </v-col>
         <v-col cols="9"></v-col>
-        <v-col cols="1" class="align-self-center"
-          ><a href="login.vue">
+        <v-col cols="1" class="align-self-center"><a href="login.vue">
             <v-avatar color="indigo">
               <v-icon color="#FFFFFF">mdi-logout-variant</v-icon>
-            </v-avatar></a
-          ></v-col
-        >
+            </v-avatar></a></v-col>
       </v-row>
     </v-col>
 
@@ -26,18 +18,8 @@
         <v-col cols="2"></v-col>
         <v-col cols="10">
           <h1 class="textShade">Type your words:</h1>
-          <v-textarea
-            id="textarea-no-resize"
-            placeholder="Type the words"
-            rows="10"
-            outlined
-            no-resize
-            background-color="#C0CAF1"
-            border-radius="10px"
-            v-model="text"
-            @input="calculateWordCount"
-            class="mt-10"
-          >
+          <v-textarea id="textarea-no-resize" placeholder="Type the words" rows="10" outlined no-resize
+            background-color="#C0CAF1" border-radius="10px" v-model="text" @input="calculateWordCount" class="mt-10">
           </v-textarea>
 
           <h3 :style="{ color: wordCountColor }">
@@ -52,62 +34,20 @@
         <v-col cols="1"></v-col>
         <v-col cols="12" lg="6">
           <h3>Language and Region:</h3>
-          <v-combobox
-            color="green"
-            label="Language:"
-            :items="[
-              'Arabic',
-              'Arabic(Gulf)',
-              'Catalan',
-              'Chinese(Cantonese)',
-              'Chinese(Mandarin)',
-              'Danish',
-              'Dutch',
-              'English(Australian)',
-              'English(British)',
-              'English(Indian)',
-              'English(New Zealand)',
-              'English(South African)',
-              'English(US)',
-              'English(Welsh)',
-              'Finnish',
-              'French',
-              'French(Canadian)',
-              'Hindi',
-              'German',
-              'German(Austrian)',
-              'Icelandic',
-              'Italian',
-              'Japanese',
-              'Korean',
-              'Norwegian',
-              'Polish',
-              'Portuguese(Brazilian)',
-              'Portugese(European)',
-              'Romanian',
-              'Russian',
-              'Spanish(European)',
-              'Spanish(Mexican)',
-              'Spanish(US)',
-              'Swedish',
-              'Turkish',
-              'Welsh',
-            ]"
-          ></v-combobox>
+          <v-combobox v-model="selectedVoice" :items="voiceOptions" label="Voice" item-text="voiceName"
+            item-value="voiceId" @change="handleVoiceChange"></v-combobox>
         </v-col>
-        <!-- <v-col cols="12" lg="3">
+        <v-col cols="12" lg="3">
           Voice:
-          <v-radio-group inline>
-            <v-radio label="Male" value="Male"></v-radio>
-            <v-radio label="Female" value="Female"></v-radio>
+          <v-radio-group v-model="gender" row>
+            <v-radio label="Male" value="male"></v-radio>
+            <v-radio label="Female" value="female"></v-radio>
           </v-radio-group>
-        </v-col> -->
+        </v-col>
 
         <v-col cols="12" lg="2" class="d-flex ml-auto flex-column">
           <v-div class="d-flex align-end flex-column">
-            <v-btn :disabled="wordExceed" color="info" @click="speak"
-              >Convert</v-btn
-            >
+            <v-btn :disabled="wordExceed" color="info" @click="speak">Convert</v-btn>
           </v-div>
         </v-col>
         <audio ref="audio"></audio>
@@ -118,41 +58,26 @@
         <v-col cols="1"> </v-col>
         <v-col cols="12" lg="6">
           <h3>Play Speed：</h3>
-          <v-slider
-            color="#C0CAF1"
-            :ticks="ticks"
-            :tick-labels="speedLabel"
-            max="4"
-            step="1"
-            show-ticks="always"
-            tick-size="4"
-            v-model="sliderValue"
-          ></v-slider>
+          <v-slider color="#C0CAF1" :ticks="ticks" :tick-labels="speedLabel" max="4" step="1" show-ticks="always"
+            tick-size="4" v-model="sliderValue"></v-slider>
         </v-col>
 
         <v-col cols="12" lg="3">
           <v-div class="d-flex align-end flex-column">
-            <v-switch
-              class="d-flex align-end flex-column"
-              v-model="ex11"
-              label="Neural Speech"
-              color="info"
-              value="Neural Speech"
-              hide-details
-            ></v-switch>
+            <v-switch class="d-flex align-end flex-column" v-model="neuralSpeech" label="Neural Speech" color="info"
+              hide-details></v-switch>
           </v-div>
         </v-col>
-        <v-col cols="2"></v-col>
+        <v-col cols="2">
+
+        </v-col>
       </v-row>
 
       <v-row>
         <v-col cols="1"></v-col>
         <v-col cols="12" lg="9" class="mb-5">
-          <v-progress-linear
-            :value="(currentSeconds / totalSeconds) * 100"
-            :max="totalSeconds"
-            color="primary"
-          ></v-progress-linear>
+          <v-progress-linear :value="(currentSeconds / totalSeconds) * 100" :max="totalSeconds"
+            color="primary"></v-progress-linear>
           <p>{{ currentSeconds }} / {{ totalSeconds }} seconds</p>
         </v-col>
 
@@ -222,14 +147,8 @@
                   <v-card>
                     <v-list>
                       <v-subheader>Volume</v-subheader>
-                      <v-slider
-                        v-model="volumeValue"
-                        min="0"
-                        max="1"
-                        step="0.01"
-                        thumb-label
-                        @input="updateVolume(volumeValue)"
-                      ></v-slider>
+                      <v-slider v-model="volumeValue" min="0" max="1" step="0.01" thumb-label
+                        @input="updateVolume(volumeValue)"></v-slider>
                     </v-list>
                   </v-card>
                 </v-menu>
@@ -241,11 +160,8 @@
             <v-hover>
               <template v-slot="{ hover }">
                 <v-btn icon v-if="audioSrc" @click="download">
-                  <v-avatar :size="38" :color="hover ? 'primary' : 'info'"
-                    ><v-icon color="#FFFFFF">mdi-download</v-icon></v-avatar
-                  ></v-btn
-                ></template
-              >
+                  <v-avatar :size="38" :color="hover ? 'primary' : 'info'"><v-icon
+                      color="#FFFFFF">mdi-download</v-icon></v-avatar></v-btn></template>
             </v-hover>
           </v-col>
           <v-col cols="3"></v-col>
@@ -275,10 +191,51 @@ export default {
       totalSeconds: 0,
       currentSeconds: 0,
       wordExceed: true,
+      gender: "male",
+      neuralSpeech: false,
+      selectedVoice: "",
+      voiceID: "Joanna",
     };
   },
-
+  computed: {
+    voiceOptions() {
+      if (this.gender === "male") {
+        return [
+          { voiceName: "Brian (English, British)", voiceId: "Brian", language: "English" },
+          { voiceName: "Joey (English, US)", voiceId: "Joey", language: "English" },
+          { voiceName: "Justin (English, US, Child)", voiceId: "Justin", language: "English" },
+          { voiceName: "Matthew (English, US)", voiceId: "Matthew", language: "English" },
+          { voiceName: "Takumi (Japanese)", voiceId: "Takumi", language: "Japanese" },
+        ];
+      } else if (this.gender === "female") {
+        return [
+          { voiceName: "Zhiyu (Chinese, Mandarin)", voiceId: "Zhiyu", language: "Chinese" },
+          { voiceName: "Amy (English, British)", voiceId: "Amy", language: "English" },
+          { voiceName: "Emma (English, British)", voiceId: "Emma", language: "English" },
+          { voiceName: "Kendra (English, British)", voiceId: "Kendra", language: "English" },
+          { voiceName: "Ivy (English, US, Child)", voiceId: "Ivy", language: "English" },
+          { voiceName: "Joanna (English, US)", voiceId: "Joanna", language: "English" },
+          { voiceName: "Kimberly (English, US)", voiceId: "Kimberly", language: "English" },
+          { voiceName: "Salli (English, US)", voiceId: "Salli", language: "English" },
+          { voiceName: "Léa (French)", voiceId: "Lea", language: "French" },
+          { voiceName: "Vicki (German)", voiceId: "Vicki", language: "German" },
+          { voiceName: "Bianca (Italian)", voiceId: "Bianca", language: "Italian" },
+          { voiceName: "Seoyeon (Korean)", voiceId: "Seoyeon", language: "Korean" },
+          { voiceName: "Camila (Portuguese, Brazilian)", voiceId: "Camila", language: "Portuguese" },
+          { voiceName: "Vitoria (Portuguese, Brazilian)", voiceId: "Vitoria", language: "Portuguese" },
+          { voiceName: "Ines (Portuguese, European)", voiceId: "Ines", language: "Portuguese" },
+          { voiceName: "Lucia (Spanish, European)", voiceId: "Lucia", language: "Spanish" },
+          { voiceName: "Mia (Spanish, Mexican)", voiceId: "Mia", language: "Spanish" },
+          { voiceName: "Lupe (Spanish, US)", voiceId: "Lupe", language: "Spanish" },
+        ];
+      }
+      return []; // Return empty array if no gender selected
+    },
+  },
   methods: {
+    handleVoiceChange() {
+      this.voiceID = this.selectedVoice.voiceId;
+    },
     updateVolume(value) {
       this.$refs.audio.volume = value;
     },
@@ -316,8 +273,8 @@ export default {
       const params = {
         OutputFormat: "mp3",
         Text: this.text,
-        VoiceId: "Joanna",
-        Engine: this.ex11 ? "neural" : "standard",
+        VoiceId: this.voiceID,
+        Engine: this.neuralSpeech ? "neural" : "standard",
       };
       polly.synthesizeSpeech(params, (err, data) => {
         if (err) console.log(err, err.stack);
@@ -384,6 +341,6 @@ export default {
 }
 
 .textShade {
-  text-shadow: 2px 2px;
+  text-shadow: 1px 1px;
 }
 </style>
