@@ -107,11 +107,11 @@
         </v-col>
         <v-col cols="12" lg="6">
           <v-progress-linear
-            :value="currentMinutes"
-            :max="totalMinutes"
+            :value="(currentSeconds / totalSeconds) * 100"
+            :max="totalSeconds"
             color="primary"
           ></v-progress-linear>
-          <p>{{ currentMinutes }} / {{ totalMinutes }} minutes</p>
+          <p>{{ currentSeconds }} / {{ totalSeconds }} seconds</p>
         </v-col>
         <!-- <v-col cols="12" lg="6">
 
@@ -205,6 +205,9 @@ export default {
       playbackPosition: 0,
       ex11: false,
       audioSrc: null,
+      showVolumeSlider: false,
+      audio: new Audio(),
+      volumeValue: 1,
     };
   },
 
@@ -223,6 +226,7 @@ export default {
 
     resume() {
       const audio = this.$refs.audio;
+      this.currentSeconds = Math.floor(audio.currentTime);
       audio.currentTime = this.playbackPosition; // Set the playback position to the stored value
       audio.play();
       this.updatePlaybackSpeed();
@@ -254,9 +258,13 @@ export default {
           );
           audio.src = url;
           audio.play();
-          this.audioSrc = url; // Store the audio URL for download
+          this.audioSrc = url;
+          this.$refs.audio = audio; // Assign the audio element to $refs
         }
       });
+      const words = this.text.trim().split(" ");// Adjust this value based on your desired speech rate
+
+      this.totalSeconds = Math.ceil(words.length * averageSecondsPerWord);
     },
     download() {
       if (this.audioSrc) {
