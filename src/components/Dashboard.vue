@@ -5,17 +5,8 @@
         <v-col cols="12" lg="1"> </v-col>
         <v-col cols="12" lg="10">
           <h1>Type your words:</h1>
-          <v-textarea
-            id="textarea-no-resize"
-            placeholder="Type the words"
-            rows="10"
-            outlined
-            no-resize
-            background-color="#C0CAF1"
-            border-radius="8px"
-            v-model="text"
-            @input="calculateWordCount"
-          >
+          <v-textarea id="textarea-no-resize" placeholder="Type the words" rows="10" outlined no-resize
+            background-color="#C0CAF1" border-radius="8px" v-model="text" @input="calculateWordCount">
           </v-textarea>
           <p :style="{ color: wordCountColor }">Word Count: {{ wordCount }}</p>
         </v-col>
@@ -23,48 +14,44 @@
       <v-row>
         <v-col cols="12" lg="6">
           <p>Language and Region:</p>
-          <v-combobox
-            color="green"
-            label="Language:"
-            :items="[
-              'Arabic',
-              'Arabic(Gulf)',
-              'Catalan',
-              'Chinese(Cantonese)',
-              'Chinese(Mandarin)',
-              'Danish',
-              'Dutch',
-              'English(Australian)',
-              'English(British)',
-              'English(Indian)',
-              'English(New Zealand)',
-              'English(South African)',
-              'English(US)',
-              'English(Welsh)',
-              'Finnish',
-              'French',
-              'French(Canadian)',
-              'Hindi',
-              'German',
-              'German(Austrian)',
-              'Icelandic',
-              'Italian',
-              'Japanese',
-              'Korean',
-              'Norwegian',
-              'Polish',
-              'Portuguese(Brazilian)',
-              'Portugese(European)',
-              'Romanian',
-              'Russian',
-              'Spanish(European)',
-              'Spanish(Mexican)',
-              'Spanish(US)',
-              'Swedish',
-              'Turkish',
-              'Welsh',
-            ]"
-          ></v-combobox>
+          <v-combobox color="green" label="Language:" :items="[
+            'Arabic',
+            'Arabic(Gulf)',
+            'Catalan',
+            'Chinese(Cantonese)',
+            'Chinese(Mandarin)',
+            'Danish',
+            'Dutch',
+            'English(Australian)',
+            'English(British)',
+            'English(Indian)',
+            'English(New Zealand)',
+            'English(South African)',
+            'English(US)',
+            'English(Welsh)',
+            'Finnish',
+            'French',
+            'French(Canadian)',
+            'Hindi',
+            'German',
+            'German(Austrian)',
+            'Icelandic',
+            'Italian',
+            'Japanese',
+            'Korean',
+            'Norwegian',
+            'Polish',
+            'Portuguese(Brazilian)',
+            'Portugese(European)',
+            'Romanian',
+            'Russian',
+            'Spanish(European)',
+            'Spanish(Mexican)',
+            'Spanish(US)',
+            'Swedish',
+            'Turkish',
+            'Welsh',
+          ]"></v-combobox>
         </v-col>
         <v-col cols="12" lg="3">
           Voice:
@@ -75,43 +62,24 @@
         </v-col>
 
         <v-col cols="12" lg="3">
-          <v-btn color="info" @click="speak"
-            >Convert<v-icon icon="mdi-play"></v-icon
-          ></v-btn>
+          <v-btn color="info" @click="speak">Convert<v-icon icon="mdi-play"></v-icon></v-btn>
         </v-col>
         <audio ref="audio"></audio>
       </v-row>
       <v-row>
         <v-col cols="12" lg="6">
           Play Speed：
-          <v-slider
-            color="#C0CAF1"
-            :ticks="ticks"
-            :tick-labels="speedLabel"
-            max="4"
-            step="1"
-            show-ticks="always"
-            tick-size="4"
-            v-model="sliderValue"
-          ></v-slider>
+          <v-slider color="#C0CAF1" :ticks="ticks" :tick-labels="speedLabel" max="4" step="1" show-ticks="always"
+            tick-size="4" v-model="sliderValue"></v-slider>
         </v-col>
         <v-col cols="12" lg="6">
-          <v-switch
-            v-model="ex11"
-            value="Neural Speech"
-            label="Neural Speech"
-            color="info"
-            hide-details
-            @click="getNeural"
-          ></v-switch>
+          <v-switch v-model="ex11" value="Neural Speech" label="Neural Speech" color="info" hide-details
+            @click="getNeural"></v-switch>
         </v-col>
         <v-col cols="12" lg="6">
-          <v-progress-linear
-            :value="currentMinutes"
-            :max="totalMinutes"
-            color="primary"
-          ></v-progress-linear>
-          <p>{{ currentMinutes }} / {{ totalMinutes }} minutes</p>
+          <v-progress-linear :value="(currentSeconds / totalSeconds * 100)" :max="totalSeconds"
+            color="primary"></v-progress-linear>
+          <p>{{ currentSeconds }} / {{ totalSeconds }} seconds</p>
         </v-col>
         <!-- <v-col cols="12" lg="6">
 
@@ -166,22 +134,17 @@
           <v-hover>
             <template v-slot="{ hover }">
               <v-btn icon>
-                <v-avatar :size="38" :color="hover ? 'primary' : 'info'"
-                  ><v-icon color="#FFFFFF">mdi-volume-high</v-icon></v-avatar
-                >
-              </v-btn></template
-            >
+                <v-avatar :size="38" :color="hover ? 'primary' : 'info'"><v-icon
+                    color="#FFFFFF">mdi-volume-high</v-icon></v-avatar>
+              </v-btn></template>
           </v-hover>
         </v-col>
         <v-col cols="1">
           <v-hover>
             <template v-slot="{ hover }">
               <v-btn icon v-if="audioSrc" @click="download">
-                <v-avatar :size="38" :color="hover ? 'primary' : 'info'"
-                  ><v-icon color="#FFFFFF">mdi-download</v-icon></v-avatar
-                ></v-btn
-              ></template
-            >
+                <v-avatar :size="38" :color="hover ? 'primary' : 'info'"><v-icon
+                    color="#FFFFFF">mdi-download</v-icon></v-avatar></v-btn></template>
           </v-hover>
         </v-col>
         <!-- <v-col cols="12" lg="5">
@@ -205,6 +168,8 @@ export default {
       playbackPosition: 0,
       ex11: false,
       audioSrc: null,
+      totalSeconds: 0,
+      currentSeconds: 0,
     };
   },
 
@@ -223,6 +188,7 @@ export default {
 
     resume() {
       const audio = this.$refs.audio;
+      this.currentSeconds = Math.floor(audio.currentTime);
       audio.currentTime = this.playbackPosition; // Set the playback position to the stored value
       audio.play();
       this.updatePlaybackSpeed();
@@ -255,8 +221,19 @@ export default {
           audio.src = url;
           audio.play();
           this.audioSrc = url; // Store the audio URL for download
+
+          audio.addEventListener("loadedmetadata", () => {
+            this.totalSeconds = Math.floor(audio.duration);
+          });
+          audio.addEventListener("timeupdate", () => {
+            this.currentSeconds = Math.floor(audio.currentTime);
+          });
         }
       });
+
+      const words = this.text.trim().split(" ");// Adjust this value based on your desired speech rate
+
+      this.totalSeconds = Math.ceil(words.length * averageSecondsPerWord);
     },
     download() {
       if (this.audioSrc) {
