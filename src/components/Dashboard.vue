@@ -21,6 +21,7 @@
           <v-textarea id="textarea-no-resize" placeholder="Type the words" rows="10" outlined no-resize
             background-color="#C0CAF1" border-radius="10px" v-model="text" @input="calculateWordCount" class="mt-10">
           </v-textarea>
+
           <h3 :style="{ color: wordCountColor }">
             Word Count: {{ wordCount }}
           </h3>
@@ -41,16 +42,19 @@
         </v-col>
 
         <v-col cols="4">
-          <v-div class="d-flex align-center flex-column">
+          <v-div class="d-flex align-end flex-column">
             <v-switch class="d-flex align-end flex-column" v-model="neuralSpeech" label="Neural Speech" color="info"
               hide-details></v-switch>
-              <div class="d-flex mr-auto flex-column">
-              <v-badge></v-badge>
-            </div>
           </v-div>
         </v-col>
 
-        <v-col cols="3"></v-col>
+        <v-col cols="1" class="d-flex align-start flex-column pt-8">
+          <v-badge 
+          icon="mdi-exclamation-thick"
+          ></v-badge>
+        </v-col>
+
+        <v-col cols="2"></v-col>
       </v-row>
 
       <v-row class="mb-15">
@@ -74,19 +78,16 @@
 
       <v-row class="mb-5">
         <v-col cols="1"></v-col>
-
         <v-col cols="9" class="mb-5">
           <v-progress-linear :value="(currentSeconds / totalSeconds) * 100" :max="totalSeconds"
             color="primary"></v-progress-linear>
           <p>{{ currentSeconds }} / {{ totalSeconds }} seconds</p>
         </v-col>
-
         <v-col cols="2"></v-col>
       </v-row>
 
       <v-row class="mb-15">
         <v-col cols="2"></v-col>
-
         <v-col cols="1">
           <v-hover>
             <template v-slot="{ hover }">
@@ -173,7 +174,8 @@
           </v-div>
         </v-col>
         <audio ref="audio"></audio>
-        <v-col cols="3" class="mb-10"></v-col>
+
+        <v-col cols="3" class="mb-15"></v-col>
       </v-row>
     </v-col>
   </v-row>
@@ -205,6 +207,7 @@ export default {
       voiceID: "Joanna",
     };
   },
+
   computed: {
     voiceOptions() {
       if (this.gender === "male") {
@@ -240,13 +243,16 @@ export default {
       return []; // Return empty array if no gender selected
     },
   },
+
   methods: {
     handleVoiceChange() {
       this.voiceID = this.selectedVoice.voiceId;
     },
+
     updateVolume(value) {
       this.$refs.audio.volume = value;
     },
+    
     rewind() {
       const audio = this.$refs.audio;
       audio.currentTime -= 5; // Adjust the rewind time (in seconds) as needed
@@ -278,14 +284,12 @@ export default {
         secretAccessKey: "",
         region: "",
       });
-
       const params = {
         OutputFormat: "mp3",
         Text: this.text,
         VoiceId: this.voiceID,
         Engine: this.neuralSpeech ? "neural" : "standard",
       };
-
       polly.synthesizeSpeech(params, (err, data) => {
         if (err) console.log(err, err.stack);
         else {
@@ -349,6 +353,7 @@ export default {
     },
   },
 };
+
 </script>
 
 <style>
