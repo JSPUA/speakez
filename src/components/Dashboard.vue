@@ -21,7 +21,6 @@
           <v-textarea id="textarea-no-resize" placeholder="Type the words" rows="10" outlined no-resize
             background-color="#C0CAF1" border-radius="10px" v-model="text" @input="calculateWordCount" class="mt-10">
           </v-textarea>
-
           <h3 :style="{ color: wordCountColor }">
             Word Count: {{ wordCount }}
           </h3>
@@ -32,140 +31,149 @@
     <v-col cols="6" color="primary">
       <v-row class="pt-10 mb-5">
         <v-col cols="1"></v-col>
-        <v-col cols="12" lg="6">
-          <h3>Language and Region:</h3>
-          <v-combobox v-model="selectedVoice" :items="voiceOptions" label="Voice" item-text="voiceName"
-            item-value="voiceId" @change="handleVoiceChange"></v-combobox>
-        </v-col>
-        <v-col cols="12" lg="3">
-          Voice:
+
+        <v-col cols="4">
+          <h3>Gender:</h3>
           <v-radio-group v-model="gender" row>
             <v-radio label="Male" value="male"></v-radio>
             <v-radio label="Female" value="female"></v-radio>
           </v-radio-group>
         </v-col>
 
-        <v-col cols="12" lg="2" class="d-flex ml-auto flex-column">
-          <v-div class="d-flex align-end flex-column">
-            <v-btn :disabled="wordExceed" color="info" @click="speak">Convert</v-btn>
+        <v-col cols="4">
+          <v-div class="d-flex align-center flex-column">
+            <v-switch class="d-flex align-end flex-column" v-model="neuralSpeech" label="Neural Speech" color="info"
+              hide-details></v-switch>
+              <div class="d-flex mr-auto flex-column">
+              <v-badge></v-badge>
+            </div>
           </v-div>
         </v-col>
-        <audio ref="audio"></audio>
-        <v-col cols="2"></v-col>
+
+        <v-col cols="3"></v-col>
       </v-row>
 
-      <v-row class="mb-5">
+      <v-row class="mb-15">
         <v-col cols="1"> </v-col>
-        <v-col cols="12" lg="6">
+
+        <v-col cols="5">
+          <h3>Language and Region:</h3>
+          <v-combobox v-model="selectedVoice" :items="voiceOptions" label="Voice" item-text="voiceName"
+            item-value="voiceId" @change="handleVoiceChange"></v-combobox>
+        </v-col>
+
+        <v-col cols="4">
           <h3>Play Speed：</h3>
           <v-slider color="#C0CAF1" :ticks="ticks" :tick-labels="speedLabel" max="4" step="1" show-ticks="always"
             tick-size="4" v-model="sliderValue"></v-slider>
         </v-col>
 
-        <v-col cols="12" lg="3">
-          <v-div class="d-flex align-end flex-column">
-            <v-switch class="d-flex align-end flex-column" v-model="neuralSpeech" label="Neural Speech" color="info"
-              hide-details></v-switch>
-          </v-div>
-        </v-col>
         <v-col cols="2">
-
         </v-col>
       </v-row>
 
-      <v-row>
+      <v-row class="mb-5">
         <v-col cols="1"></v-col>
-        <v-col cols="12" lg="9" class="mb-5">
+
+        <v-col cols="9" class="mb-5">
           <v-progress-linear :value="(currentSeconds / totalSeconds) * 100" :max="totalSeconds"
             color="primary"></v-progress-linear>
           <p>{{ currentSeconds }} / {{ totalSeconds }} seconds</p>
         </v-col>
 
         <v-col cols="2"></v-col>
+      </v-row>
 
-        <v-row>
-          <v-col cols="2"></v-col>
-          <v-col cols="1">
-            <v-hover>
-              <template v-slot="{ hover }">
-                <v-btn icon @click="rewind">
-                  <v-avatar :size="38" :color="hover ? 'primary' : 'info'">
-                    <v-icon color="#FFFFFF">mdi-rewind</v-icon>
-                  </v-avatar>
-                </v-btn>
-              </template>
-            </v-hover>
-          </v-col>
+      <v-row class="mb-15">
+        <v-col cols="2"></v-col>
 
-          <v-col cols="1">
-            <v-hover>
-              <template v-slot="{ hover }">
-                <v-btn icon @click="resume">
-                  <v-avatar :size="38" :color="hover ? 'primary' : 'info'">
-                    <v-icon color="#FFFFFF">mdi-play</v-icon>
-                  </v-avatar>
-                </v-btn>
-              </template>
-            </v-hover>
-          </v-col>
+        <v-col cols="1">
+          <v-hover>
+            <template v-slot="{ hover }">
+              <v-btn icon @click="rewind">
+                <v-avatar :size="38" :color="hover ? 'primary' : 'info'">
+                  <v-icon color="#FFFFFF">mdi-rewind</v-icon>
+                </v-avatar>
+              </v-btn>
+            </template>
+          </v-hover>
+        </v-col>
 
-          <v-col cols="1">
-            <v-hover>
-              <template v-slot="{ hover }">
-                <v-btn icon @click="stop">
-                  <v-avatar :size="38" :color="hover ? 'primary' : 'info'">
-                    <v-icon color="#FFFFFF">mdi-pause</v-icon>
-                  </v-avatar>
-                </v-btn>
-              </template>
-            </v-hover>
-          </v-col>
+        <v-col cols="1">
+          <v-hover>
+            <template v-slot="{ hover }">
+              <v-btn icon @click="resume">
+                <v-avatar :size="38" :color="hover ? 'primary' : 'info'">
+                  <v-icon color="#FFFFFF">mdi-play</v-icon>
+                </v-avatar>
+              </v-btn>
+            </template>
+          </v-hover>
+        </v-col>
 
-          <v-col cols="1">
-            <v-hover>
-              <template v-slot="{ hover }">
-                <v-btn icon @click="fastForward">
-                  <v-avatar :size="38" :color="hover ? 'primary' : 'info'">
-                    <v-icon color="#FFFFFF">mdi-fast-forward</v-icon>
-                  </v-avatar>
-                </v-btn>
-              </template>
-            </v-hover>
-          </v-col>
+        <v-col cols="1">
+          <v-hover>
+            <template v-slot="{ hover }">
+              <v-btn icon @click="stop">
+                <v-avatar :size="38" :color="hover ? 'primary' : 'info'">
+                  <v-icon color="#FFFFFF">mdi-pause</v-icon>
+                </v-avatar>
+              </v-btn>
+            </template>
+          </v-hover>
+        </v-col>
 
-          <v-col cols="1">
-            <v-hover>
-              <template v-slot="{ hover }">
-                <v-menu offset-y>
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-btn icon v-bind="attrs" v-on="on">
-                      <v-avatar :size="38" :color="hover ? 'primary' : 'info'">
-                        <v-icon color="#FFFFFF">mdi-volume-high</v-icon>
-                      </v-avatar>
-                    </v-btn>
-                  </template>
-                  <v-card>
-                    <v-list>
-                      <v-subheader>Volume</v-subheader>
-                      <v-slider v-model="volumeValue" min="0" max="1" step="0.01" thumb-label
-                        @input="updateVolume(volumeValue)"></v-slider>
-                    </v-list>
-                  </v-card>
-                </v-menu>
-              </template>
-            </v-hover>
-          </v-col>
+        <v-col cols="1">
+          <v-hover>
+            <template v-slot="{ hover }">
+              <v-btn icon @click="fastForward">
+                <v-avatar :size="38" :color="hover ? 'primary' : 'info'">
+                  <v-icon color="#FFFFFF">mdi-fast-forward</v-icon>
+                </v-avatar>
+              </v-btn>
+            </template>
+          </v-hover>
+        </v-col>
 
-          <v-col cols="1">
-            <v-hover>
-              <template v-slot="{ hover }">
-                <v-btn icon v-if="audioSrc" @click="download">
-                  <v-avatar :size="38" :color="hover ? 'primary' : 'info'"><v-icon
-                      color="#FFFFFF">mdi-download</v-icon></v-avatar></v-btn></template>
-            </v-hover>
-          </v-col>
-          <v-col cols="3"></v-col>
-        </v-row>
+        <v-col cols="1">
+          <v-hover>
+            <template v-slot="{ hover }">
+              <v-menu offset-y>
+                <template v-slot:activator="{ on, attrs }">
+                  <v-btn icon v-bind="attrs" v-on="on">
+                    <v-avatar :size="38" :color="hover ? 'primary' : 'info'">
+                      <v-icon color="#FFFFFF">mdi-volume-high</v-icon>
+                    </v-avatar>
+                  </v-btn>
+                </template>
+                <v-card>
+                  <v-list>
+                    <v-subheader>Volume</v-subheader>
+                    <v-slider v-model="volumeValue" min="0" max="1" step="0.01" thumb-label
+                      @input="updateVolume(volumeValue)"></v-slider>
+                  </v-list>
+                </v-card>
+              </v-menu>
+            </template>
+          </v-hover>
+        </v-col>
+
+        <v-col cols="1">
+          <v-hover>
+            <template v-slot="{ hover }">
+              <v-btn icon v-if="audioSrc" @click="download">
+                <v-avatar :size="38" :color="hover ? 'primary' : 'info'"><v-icon
+                    color="#FFFFFF">mdi-download</v-icon></v-avatar></v-btn></template>
+          </v-hover>
+        </v-col>
+
+        <v-col cols="2" class="d-flex mr-auto flex-column">
+          <v-div class="d-flex align-start flex-column">
+            <v-btn :disabled="wordExceed" color="info" @click="speak">Convert</v-btn>
+          </v-div>
+        </v-col>
+        <audio ref="audio"></audio>
+        <v-col cols="3" class="mb-10"></v-col>
       </v-row>
     </v-col>
   </v-row>
@@ -270,12 +278,14 @@ export default {
         secretAccessKey: "",
         region: "",
       });
+
       const params = {
         OutputFormat: "mp3",
         Text: this.text,
         VoiceId: this.voiceID,
         Engine: this.neuralSpeech ? "neural" : "standard",
       };
+
       polly.synthesizeSpeech(params, (err, data) => {
         if (err) console.log(err, err.stack);
         else {
@@ -297,6 +307,7 @@ export default {
         }
       });
     },
+
     download() {
       if (this.audioSrc) {
         const link = document.createElement("a");
@@ -305,12 +316,16 @@ export default {
         link.click();
       }
     },
+
     calculateWordCount() {
-      const words = this.text.trim().split(" ");
-      if (words.length === 1 && words[0] === "") {
-        this.wordCount = 0;
-      } else {
+      const text = this.text.trim();
+      const containsAlphabeticCharacters = /[a-z]/i.test(text);
+
+      if (containsAlphabeticCharacters) {
+        const words = text.split(" ");
         this.wordCount = words.length;
+      } else {
+        this.wordCount = text.length;
       }
 
       if (this.wordCount > 250 || this.wordCount < 1) {
@@ -321,6 +336,7 @@ export default {
         this.wordExceed = false;
       }
     },
+
     updatePlaybackSpeed() {
       const audio = this.$refs.audio;
       audio.playbackRate = this.speedLabel[this.sliderValue];
