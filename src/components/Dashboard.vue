@@ -384,7 +384,6 @@
                 <v-col cols="7"></v-col>
                 <v-col cols="2" class="d-flex mr-auto flex-column">
                   <v-div class="d-flex align-start flex-column">
-                    <v-btn :disabled="wordExceed" color="info" id="convertButton" @click="speak">Convert</v-btn>
                     <v-btn color="info" id="convertButton" @click="speak">Convert</v-btn>
                   </v-div>
                 </v-col>
