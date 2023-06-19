@@ -183,7 +183,7 @@
 
             <v-col cols="2" class="d-flex mr-auto flex-column">
               <v-div class="d-flex align-start flex-column">
-                <v-btn :disabled="wordExceed" color="info" id="convertButton" @click="speak">Convert</v-btn>
+                <v-btn color="info" id="convertButton" @click="speak">Convert</v-btn>
               </v-div>
             </v-col>
             <audio ref="audio"></audio>
@@ -385,6 +385,7 @@
                 <v-col cols="2" class="d-flex mr-auto flex-column">
                   <v-div class="d-flex align-start flex-column">
                     <v-btn :disabled="wordExceed" color="info" id="convertButton" @click="speak">Convert</v-btn>
+                    <v-btn color="info" id="convertButton" @click="speak">Convert</v-btn>
                   </v-div>
                 </v-col>
                 <audio ref="audio"></audio>
@@ -518,6 +519,24 @@ export default {
     },
 
     speak() {
+
+    if (this.wordCount == 0) {
+      alert("Please input a text!");
+      return;
+    }
+    if (this.wordCount > 250) {
+      alert("Please input less than 250 words!");
+      return;
+    }
+      if (!this.gender) {
+      alert("Please select a gender!");
+      return;
+    }
+      if (!this.selectedVoice) {
+      alert("Please select a voice!");
+      return;
+    }
+  
       const convertButton = document.getElementById("convertButton");
       convertButton.disabled = true;
 
